@@ -1,9 +1,9 @@
 import { descTextField, amountTextField, rateTextField, serialNoTextField, quantityTextField, outputTextField } from "../constant";
-import { textAnnotationsType } from "../type";
+import { ProductType, textAnnotationsType } from "../type";
 
 // const amtRegex = /^\d{1,3}(,\d{3})*(\.\d+)?$/;
 
-export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): any {
+export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): ProductType[] {
   const textAnnotation: textAnnotationsType[] = textAnnotations;
   console.log('text anno', textAnnotation);
   const boundingRects = {
@@ -34,7 +34,7 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): any {
   const serialBlock = textAnnotation.find(item => {
     return (serialNoTextField.includes(item.description.toLowerCase()));
   })
-  if (!serialBlock) return;
+  if (!serialBlock) return [];
   const serialBlockNo = textAnnotation.find(item => {
     return (['no.', 'no'].includes(item.description.toLowerCase())) && item.boundingPoly.vertices[0].x < serialBlock?.boundingPoly.vertices[2].x;
   })
@@ -42,7 +42,7 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): any {
   const quantityBlock = textAnnotation.find(item => {
     return (quantityTextField.includes(item.description.toLowerCase()));
   })
-  if (!amtBlock || !hsnBlock || !serialBlock || !quantityBlock || !rateBlock || !descriptionBlock) return;
+  if (!amtBlock || !hsnBlock || !serialBlock || !quantityBlock || !rateBlock || !descriptionBlock) return [];
   if (!!serialBlock) {
     boundingRects.maxTopLeftY = serialBlock.boundingPoly.vertices[0].y || 0
     boundingRects.maxTopLeftX = serialBlock.boundingPoly.vertices[0].x || 0
@@ -150,10 +150,28 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): any {
     })
     rate.push(result);
   })
-  return ({
-    descriptions: descriptions,
-    rates: rate,
-    quantities: quantities,
+  const result = {
+    descriptions: joinText(descriptions),
+    rates: joinText(rate),
+    quantities: joinText(quantities),
     hsn: hsnNos.map(item => item.description)
+  }
+  return result.hsn.map((item, index) => ({
+    description: result.descriptions[index],
+    rate: result.rates[index],
+    quantity: result.quantities[index],
+    hsn: item
+  }))
+}
+
+function joinText(items: textAnnotationsType[][]): string[] {
+  const result: string[] = [];
+  items.forEach(it => {
+    let res = ''
+    it.forEach(i => {
+      res += i.description + ' ';
+    })
+    result.push(res)
   })
+  return result;
 }

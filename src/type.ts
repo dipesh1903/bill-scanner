@@ -18,4 +18,5 @@ export type ProductType = {
     description: string,
     hsn: string,
     rate: string,
+    quantity: string
 }

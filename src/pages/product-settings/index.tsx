@@ -28,7 +28,7 @@ export default function ProductSettings({value}: {value?: ProductType[]}) {
     }
 
     return (
-        <div>
+        <div className="flex flex-col max-w-2xl overflow-hidden h-[100vh] m-auto p-4">
             {
                 products.map((product, index) => (
                     <div

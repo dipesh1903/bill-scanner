@@ -19,7 +19,7 @@ export default function ProductCard({product}: props) {
 
 
     return (
-        <div className={cn("p-4 rounded-lg bg-white", "shadow-product-cards-edit")}>
+        <div className={cn("p-4 rounded-lg bg-white border-[1px] shadow-product-cards")}>
             <div className="relative">
                 <InputLabel>Description</InputLabel>
                 <TextInput
