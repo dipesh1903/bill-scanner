@@ -131,7 +131,7 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
 
   const rate: textAnnotationsType[][] = [];
   hsnNos.forEach((hsn, index) => {
-    let topCheck = slNos[index].boundingPoly.vertices[0].y;
+    let topCheck = rateBlock.boundingPoly.vertices[2].y;
     if (rate.length) {
       topCheck = rate[rate.length - 1][rate[rate.length - 1].length - 1].boundingPoly.vertices[2].y;
     }

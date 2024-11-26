@@ -14,6 +14,7 @@ export default function ProductCard({product}: props) {
             description: product ? product.description : '',
             hsn: product ? product.hsn : undefined,
             rate: product ? product.rate : undefined,
+            quantity: product? product.quantity : undefined
         }
     })
 
@@ -42,6 +43,17 @@ export default function ProductCard({product}: props) {
                                 })
                             }
                             placeholder="HSN"
+                            />
+                </div>
+                <div>
+                    <InputLabel>Quantity</InputLabel>
+                        <TextInput
+                            {
+                                ...register('quantity', {
+                                    required: 'Cannot be empty'
+                                })
+                            }
+                            placeholder="Quantity"
                             />
                 </div>
                 <div>
