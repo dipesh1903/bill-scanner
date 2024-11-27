@@ -14,6 +14,12 @@ export type textAnnotationsType = {
     locale?: string
 }
 
+export type textAnnotationtypeFull = {
+    boundingPoly: {vertices: Required<Array<{x: number, y: number}>>},
+    description: string,
+    locale?: string
+}
+
 export type ProductType = {
     description: string,
     hsn: string,

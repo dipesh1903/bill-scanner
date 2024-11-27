@@ -46,7 +46,6 @@ export default function HomePage() {
     function getCameraPic(img: string) {
         setIsCameraOpen(false);
         extractTextFromImg(img);
-        console.log('image link is ', img)
     }
 
     function handleFileChange(e: ChangeEvent<HTMLInputElement>) {

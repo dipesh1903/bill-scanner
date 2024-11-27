@@ -1,10 +1,22 @@
 import { descTextField, amountTextField, rateTextField, serialNoTextField, quantityTextField, outputTextField } from "../constant";
-import { ProductType, textAnnotationsType } from "../type";
+import { ProductType, textAnnotationsType, textAnnotationtypeFull } from "../type";
 
-// const amtRegex = /^\d{1,3}(,\d{3})*(\.\d+)?$/;
 
 export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): ProductType[] {
-  const textAnnotation: textAnnotationsType[] = textAnnotations;
+  const amtRegex = /^\d{1,3}(,\d{3})*(\.\d+)?$/;
+  const annotations: textAnnotationtypeFull[] = textAnnotations.map(anno => {
+    anno.boundingPoly.vertices.forEach(item => {
+      if (!item.x) {
+        item.x = 0
+      }
+      if (!item.y) {
+        item.y = 0
+      }
+    })
+    return anno as textAnnotationtypeFull;
+  })
+  const textAnnotation: textAnnotationtypeFull[] = annotations;
+  const reverseTextAnnotation: textAnnotationtypeFull[] = [...textAnnotation].reverse();
   console.log('text anno', textAnnotation);
   const boundingRects = {
      maxTopLeftX: 0,
@@ -19,14 +31,11 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
   const descriptionBlock = textAnnotation.find(item => {
     return (descTextField.includes(item.description.toLowerCase()));
   })
-  const hsnBlock = textAnnotation.find(item => {
-    return (item.description.toLowerCase() === 'hsn' || item.description.toLowerCase() === 'sac');
-  })
   const amtBlock = textAnnotation.find(item => {
     return (amountTextField.includes(item.description.toLowerCase()));
   })
   if (!!amtBlock) {
-    boundingRects.maxTopRightY = amtBlock.boundingPoly.vertices[0].y || 0
+    boundingRects.maxTopRightY = amtBlock.boundingPoly.vertices[0].y
   }
   const rateBlock = textAnnotation.find(item => {
     return (rateTextField.includes(item.description.toLowerCase()));
@@ -38,10 +47,16 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
   const serialBlockNo = textAnnotation.find(item => {
     return (['no.', 'no'].includes(item.description.toLowerCase())) && item.boundingPoly.vertices[0].x < serialBlock?.boundingPoly.vertices[2].x;
   })
-  console.log('no', serialBlockNo)
-  const quantityBlock = textAnnotation.find(item => {
+  const hsnBlock = textAnnotation.find(item => {
+    return (item.description.toLowerCase() === 'hsn' || item.description.toLowerCase() === 'sac') && (item.boundingPoly.vertices[0].y <= serialBlock.boundingPoly.vertices[2].y ||
+      (serialBlockNo && item.boundingPoly.vertices[0].y <= serialBlockNo?.boundingPoly.vertices[2].y)
+     )
+  })
+  console.log('dgblvebgv,er', serialBlock)
+  const quantityBlock = reverseTextAnnotation.find(item => {
     return (quantityTextField.includes(item.description.toLowerCase()));
   })
+  console.log('no', serialBlockNo, hsnBlock, rateBlock, quantityBlock)
   if (!amtBlock || !hsnBlock || !serialBlock || !quantityBlock || !rateBlock || !descriptionBlock) return [];
   if (!!serialBlock) {
     boundingRects.maxTopLeftY = serialBlock.boundingPoly.vertices[0].y || 0
@@ -79,19 +94,22 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
 
   const items = tableBounds.filter(item => item.boundingPoly.vertices[0].x < hsnBlock?.boundingPoly.vertices[0].x);
   console.log('table bound is ', tableBounds , '\n', minimums, '\n', boundingRects, textAnnotation.length);
-  const hsnNos = tableBounds.filter(item =>  !isNaN(+item.description) && item.description.length === 8)
+  const hsnNos = tableBounds.filter(item =>  !isNaN(+item.description) && item.description.length === 8 && item.boundingPoly.vertices[0].x > hsnBlock.boundingPoly.vertices[0].x - 20 &&
+  item.boundingPoly.vertices[0].x < hsnBlock.boundingPoly.vertices[1].x + 20
+)
   const slNos = items.filter(item => {
-    return ((((item.boundingPoly.vertices[0].x || 0) < (serialBlock?.boundingPoly.vertices[2].x)
-    || (item.boundingPoly.vertices[0].x || 0) < (serialBlockNo?.boundingPoly.vertices[2].x)))
+    return ((((item.boundingPoly.vertices[0].x || 0) < (serialBlock?.boundingPoly.vertices[2].x || 0)
+    || (serialBlockNo && (item.boundingPoly.vertices[0].x || 0) < serialBlockNo?.boundingPoly.vertices[2].x)))
     && (item.boundingPoly.vertices[0].y || 0) > serialBlock?.boundingPoly.vertices[2].y)
     && !isNaN(+item.description) && +item.description <= hsnNos.length
   });
-  const descriptions: textAnnotationsType[][] = [];
+  const descriptions: textAnnotationtypeFull[][] = [];
   console.log('sl', slNos , 'hsnNo', hsnNos, outputField)
   hsnNos.forEach((hsn, index) => {
-    let topCheck = slNos[index].boundingPoly.vertices[0].y;
+    let topCheck = (serialBlockNo &&  serialBlockNo.boundingPoly.vertices[2].y) || (serialBlock &&  serialBlock.boundingPoly.vertices[2].y);
     if (descriptions.length) {
-      topCheck = descriptions[descriptions.length - 1][descriptions[descriptions.length - 1].length - 1].boundingPoly.vertices[2].y;
+      const vertices = descriptions[descriptions.length - 1][descriptions[descriptions.length - 1].length - 1].boundingPoly.vertices;
+      topCheck = Math.min(vertices[2].y || 0, vertices[3].y || 0)
     }
     const result = tableBounds.filter(item => {
       const vertices = item.boundingPoly.vertices;
@@ -99,15 +117,14 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
      if (index+1 === hsnNos.length)
         maxCheck = outputField?.boundingPoly.vertices[0].y || 0
       else 
-       maxCheck = hsnNos[index+1].boundingPoly.vertices[0].y || 0
-    console.log('max check is', maxCheck)
-      return !!((vertices[0].y || 0)  >=  topCheck && vertices[0].x > slNos[index].boundingPoly.vertices[1].x && vertices[0].x < hsn.boundingPoly.vertices[0].x && vertices[2].y < maxCheck);
+      maxCheck = Math.max(hsnNos[index+1].boundingPoly.vertices[0].y || 0, slNos[index+1].boundingPoly.vertices[0].y || 0) || 0
+      return !!((Math.max(vertices[0].y || 0, vertices[1].y || 0))  >=  topCheck && vertices[0].x > slNos[index].boundingPoly.vertices[1].x && vertices[0].x < hsn.boundingPoly.vertices[0].x && vertices[2].y < maxCheck);
 
     })
     descriptions.push(result);
   })
   console.log('descriptions are ', descriptions);
-  const quantities: textAnnotationsType[][] = [];
+  const quantities: textAnnotationtypeFull[][] = [];
   hsnNos.forEach((hsn, index) => {
     let topCheck = slNos[index].boundingPoly.vertices[0].y;
     if (quantities.length) {
@@ -119,7 +136,7 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
      if (index+1 === hsnNos.length)
         maxCheck = outputField?.boundingPoly.vertices[0].y || 0
       else 
-       maxCheck = hsnNos[index+1].boundingPoly.vertices[0].y || 0
+       maxCheck = Math.max(hsnNos[index+1].boundingPoly.vertices[0].y || 0, slNos[index+1].boundingPoly.vertices[0].y || 0) || 0
     console.log('max check is', maxCheck)
       return !!((vertices[0].y || 0)  >=  topCheck &&
       vertices[0].x > hsnBlock?.boundingPoly.vertices[1].x && vertices[0].x < quantityBlock.boundingPoly.vertices[1].x && vertices[2].y < maxCheck);
@@ -129,9 +146,10 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
   })
   console.log('quantities are ', quantities);
 
-  const rate: textAnnotationsType[][] = [];
-  hsnNos.forEach((hsn, index) => {
+  const rate: textAnnotationtypeFull[][] = [];
+  hsnNos.forEach((_, index) => {
     let topCheck = rateBlock.boundingPoly.vertices[2].y;
+    console.log('rate is ', rate);
     if (rate.length) {
       topCheck = rate[rate.length - 1][rate[rate.length - 1].length - 1].boundingPoly.vertices[2].y;
     }
@@ -142,17 +160,18 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
      if (index+1 === hsnNos.length)
         maxCheck = outputField?.boundingPoly.vertices[0].y || 0
       else 
-      maxCheck = hsnNos[index+1].boundingPoly.vertices[0].y || 0
+      maxCheck = Math.max(hsnNos[index+1].boundingPoly.vertices[0].y || 0, slNos[index+1].boundingPoly.vertices[0].y || 0) || 0
       console.log('max check is', maxCheck)
       return !!((vertices[0].y || 0)  >=  topCheck &&
-      vertices[0].x >= quantityBlock?.boundingPoly.vertices[1].x && vertices[0].x <= rateBlock.boundingPoly.vertices[1].x && vertices[2].y < maxCheck);
-
+      vertices[0].x >= quantityBlock?.boundingPoly.vertices[1].x && vertices[0].x <= rateBlock.boundingPoly.vertices[1].x && vertices[2].y < maxCheck && !!amtRegex.test(item.description))
     })
     rate.push(result);
   })
+
+  console.log('rate is', rate);
   const result = {
     descriptions: joinText(descriptions),
-    rates: joinText(rate),
+    rates: joinText(rate, 'number'),
     quantities: joinText(quantities),
     hsn: hsnNos.map(item => item.description)
   }
@@ -164,11 +183,14 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
   }))
 }
 
-function joinText(items: textAnnotationsType[][]): string[] {
+function joinText(items: textAnnotationtypeFull[][], type?: string): string[] {
   const result: string[] = [];
   items.forEach(it => {
     let res = ''
     it.forEach(i => {
+      if (type && type === 'number') {
+
+      }
       res += i.description + ' ';
     })
     result.push(res)

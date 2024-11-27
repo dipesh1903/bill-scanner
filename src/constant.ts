@@ -8250,11 +8250,12 @@ export const descTextField = [
     'description',
     'goods',
     'escription',
-    'criptio'
+    'criptio',
+    'item'
 ]
 
 export const rateTextField = [
-    'rate', 'ate'
+    'rate', 'ate', 'price'
 ]
 
 export const hsnTextField = [
@@ -8266,7 +8267,7 @@ export const outputTextField = [
 ]
 
 export const quantityTextField = [
-    'quantity'
+    'quantity',
 ]
 // export const textAnnotations = [
 //     {
