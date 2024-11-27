@@ -1,15 +1,15 @@
 import './App.css'
-import { amountTextField, descTextField, outputTextField, quantityTextField, rateTextField, serialNoTextField, textAnnotations } from './constant';
 import { router } from './routes/route';
-import { textAnnotationsType } from './type';
 import { Outlet, RouterProvider } from "react-router-dom"
+import AuthContextProvider from './store/auth/context';
 
 function App() {
-
   return (
     <>
-      <RouterProvider router={router}/>
-      <Outlet />
+      <AuthContextProvider>
+        <RouterProvider router={router}/>
+        <Outlet />
+      </AuthContextProvider>
     </>
   )
 }

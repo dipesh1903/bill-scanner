@@ -28,7 +28,11 @@ export default function ProductSettings({value}: {value?: ProductType[]}) {
     }
 
     return (
-        <div className="flex flex-col max-w-2xl overflow-hidden h-[100vh] m-auto p-4">
+        <div className="flex flex-col max-w-2xl h-[100vh] m-auto p-4">
+            <header className="bg-slate-300 p-4 mb-4">
+                <h1 className="font-semibold">Products</h1>
+                <button>save</button>
+            </header>
             {
                 products.map((product, index) => (
                     <div

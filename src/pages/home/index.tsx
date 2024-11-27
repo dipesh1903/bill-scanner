@@ -22,6 +22,8 @@ export default function HomePage() {
         }
     }
 
+    console.log('g whegfjwegf wgef i am here');
+
     function extractTextFromImg(img: string) {
         addMessage({image: img})
             .then((result: any) => {
