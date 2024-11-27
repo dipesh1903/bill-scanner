@@ -4,9 +4,11 @@ import Camera from "../../components/camera";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { onExtractBillInfo } from "../../utils/extractText";
 import { useNavigate } from "react-router-dom";
-
+import { Dialog, DialogContent } from "../../components/ui/dialog";
+import LoaderIcon from '../../assets/spinner.svg';
 export default function HomePage() {
     const [file, setFile] = useState<File>();
+    const [loader , setLoader] = useState(false)
     const inputRef= useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
     const [isCameraOpen, setIsCameraOpen] = useState<boolean>(false);
@@ -25,6 +27,7 @@ export default function HomePage() {
     console.log('g whegfjwegf wgef i am here');
 
     function extractTextFromImg(img: string) {
+        setLoader(true)
         addMessage({image: img})
             .then((result: any) => {
                 const results = result.data.res.filter(Boolean)
@@ -42,7 +45,7 @@ export default function HomePage() {
                 }
             }).catch(err => {
                 console.log('error is ', err);
-            })
+            }).finally(() => setLoader(false))
     }
 
     function getCameraPic(img: string) {
@@ -91,17 +94,27 @@ export default function HomePage() {
                     </header>
                     <main className="flex flex-col items-center">
                         <div className="w-fit">
-                            <PrimaryButton onClick={onSelectInput}>Select Image</PrimaryButton>
+                            <PrimaryButton className="px-6" onClick={onSelectInput}>Select Bill Image</PrimaryButton>
                             <input ref={inputRef}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileChange(e)} type="file" className="hidden" />
                         </div>
-                        <div>or</div>
+                        <div className="flex flex-1 w-full pt-1 pb-1 items-center">
+                            <span className="flex flex-1 h-[1px] bg-slate-400"></span><span className="p-2 text-[20px]">or</span><span className="flex flex-1 h-[1px] bg-slate-400"></span></div>
                         <div className="w-fit">
-                            <PrimaryButton onClick={() => setIsCameraOpen(true)}>Click Photo</PrimaryButton>
+                            <PrimaryButton className="px-6" onClick={() => setIsCameraOpen(true)}>Click Bill Photo</PrimaryButton>
                         </div>
                         <canvas className="mt-4" ref={canvasRef} height={400} width={400}></canvas>
                     </main>
                 </>
+            }
+                        {
+                loader && 
+                <Dialog open={loader} onOpenChange={() => setLoader(false)}>
+                    <DialogContent onInteractOutside={(e) => e.preventDefault()}
+                        className="w-fit border-none bg-transparent">
+                        <img width={80} className="stroke-slate-800" src={LoaderIcon} />
+                    </DialogContent>
+                </Dialog>
             }
         </div>
     )

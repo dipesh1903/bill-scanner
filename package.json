@@ -12,6 +12,7 @@
   "dependencies": {
     "@capacitor-community/image-to-text": "^6.0.1",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
+    "@radix-ui/react-dialog": "^1.1.2",
     "firebase": "^10.14.1",
     "html2canvas": "^1.4.1",
     "image-to-base64": "^2.2.0",
