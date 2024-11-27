@@ -13,11 +13,9 @@ const dispatchContext = createContext<React.Dispatch<React.SetStateAction<contex
 
 export function StorageContext({children}: {children: ReactNode} ) {
     const [state, setState] = useState<contextType>(storePersist.get(LOCAL_STORAGE_KEY.PRODUCT_LIST) || {});
-    
     useEffect(() => {
         if (Object.keys(state).length) {
-            const exisitngProducts = storePersist.get(LOCAL_STORAGE_KEY.PRODUCT_LIST);
-            storePersist.set(LOCAL_STORAGE_KEY.PRODUCT_LIST, {products: {...(exisitngProducts?.products || {}),  ...state.products}})
+            storePersist.set(LOCAL_STORAGE_KEY.PRODUCT_LIST, {products: {...state.products}})
         }
     }, [state]) 
 

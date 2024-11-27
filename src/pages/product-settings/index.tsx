@@ -29,10 +29,12 @@ export default function ProductSettings({value}: {value?: ProductListType}) {
         const productIdsToSave = productIds.filter(id => !savedProductId.includes(id))
         const productList: ProductListType = {};
         (productIdsToSave || []).forEach(id => productList[id] = products[id])
-        dispatch({products: productList})
-        navigate(-1)
+        if (productIdsToSave.length) {
+            dispatch({products: {...allProducts.products, ...productList}})
+            navigate(-1)
+        }
     }
-    
+
     return (
         <div className="flex flex-col max-w-2xl h-[100vh] m-auto p-4">
             <header className="bg-slate-300 p-4 mb-4 flex justify-between">
