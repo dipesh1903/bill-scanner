@@ -12,6 +12,7 @@ export const router = createBrowserRouter([
     {
         path: '/login',
         element: <LoginPage/>,
+
     },
     {
         element: <AuthGaurd></AuthGaurd>,
@@ -22,6 +23,10 @@ export const router = createBrowserRouter([
             },
             {
                 path: '/product',
+                element: <ProductSettings />
+            },
+            {
+                path: '/product/all',
                 element: <ProductSettings />
             },
         ]

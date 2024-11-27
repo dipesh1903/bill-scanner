@@ -6,8 +6,10 @@ import { onExtractBillInfo } from "../../utils/extractText";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent } from "../../components/ui/dialog";
 import LoaderIcon from '../../assets/spinner.svg';
+
 export default function HomePage() {
-    const [file, setFile] = useState<File>();
+
+    const [ _ , setFile] = useState<File>();
     const [loader , setLoader] = useState(false)
     const inputRef= useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
@@ -23,8 +25,6 @@ export default function HomePage() {
             inputRef.current.click()
         }
     }
-
-    console.log('g whegfjwegf wgef i am here');
 
     function extractTextFromImg(img: string) {
         setLoader(true)
@@ -89,8 +89,9 @@ export default function HomePage() {
             {
                 isCameraOpen ? <Camera onSave={getCameraPic}/> :
                 <>
-                    <header className="bg-slate-300 p-4 mb-4">
+                    <header className="bg-slate-300 p-4 mb-4 flex justify-between items-center">
                         <h1 className="font-semibold">Bill Scanner</h1>
+                        <PrimaryButton className="w-fit bg-transparent text-black rounded-lg border-[1px] border-black hover:bg-opacity-50" onClick={() => navigate('/product/all')}>View Scanned Items</PrimaryButton>
                     </header>
                     <main className="flex flex-col items-center">
                         <div className="w-fit">
@@ -107,7 +108,7 @@ export default function HomePage() {
                     </main>
                 </>
             }
-                        {
+            {
                 loader && 
                 <Dialog open={loader} onOpenChange={() => setLoader(false)}>
                     <DialogContent onInteractOutside={(e) => e.preventDefault()}

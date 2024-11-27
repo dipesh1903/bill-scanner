@@ -26,3 +26,7 @@ export type ProductType = {
     rate: string,
     quantity: string
 }
+
+export type ProductListType = {
+    [id: string]: ProductType
+}

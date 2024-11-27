@@ -36,7 +36,8 @@ function isJsonString(str: string): boolean {
   };
 
   export const LOCAL_STORAGE_KEY = {
-    LOGIN_DETAILS: 'LOGIN_DETAILS'
+    LOGIN_DETAILS: 'LOGIN_DETAILS',
+    PRODUCT_LIST: 'PRODUCT_LIST'
   }
   
   export default storePersist;

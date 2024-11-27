@@ -5,10 +5,11 @@ import { InputLabel } from "../../components/ui/input-label"
 import { TextInput } from "../../components/ui/input-string"
 type props = {
     product?: ProductType,
+    isReadOnly?: boolean
     onSave?: (product?: ProductType) => void
 }
 
-export default function ProductCard({product}: props) {
+export default function ProductCard({product, isReadOnly}: props) {
     const {register} = useForm<ProductType>({
         defaultValues: {
             description: product ? product.description : '',
@@ -24,6 +25,7 @@ export default function ProductCard({product}: props) {
             <div className="relative">
                 <InputLabel>Description</InputLabel>
                 <TextInput
+                readOnly={!!isReadOnly}
                 {
                     ...register('description', {
                         required: 'Cannot be empty'
@@ -37,6 +39,7 @@ export default function ProductCard({product}: props) {
                 <div>
                     <InputLabel>Hsn Code</InputLabel>
                         <TextInput
+                            readOnly={!!isReadOnly}
                             {
                                 ...register('hsn', {
                                     required: 'Cannot be empty'
@@ -48,6 +51,7 @@ export default function ProductCard({product}: props) {
                 <div>
                     <InputLabel>Quantity</InputLabel>
                         <TextInput
+                            readOnly={!!isReadOnly}
                             {
                                 ...register('quantity', {
                                     required: 'Cannot be empty'
@@ -59,6 +63,7 @@ export default function ProductCard({product}: props) {
                 <div>
                     <InputLabel>Rate</InputLabel>
                         <TextInput
+                            readOnly={!!isReadOnly}
                             {
                                 ...register('rate', {
                                     required: 'Cannot be empty'
