@@ -1,5 +1,6 @@
 import {onCall} from "firebase-functions/v2/https";
 import vision from "@google-cloud/vision";
+import { logger } from "firebase-functions";
 
 export const helloWorld = onCall(async (request, response) => {
   const image = request.data.image;
@@ -18,8 +19,15 @@ export const helloWorld = onCall(async (request, response) => {
       }
     ]
   }
-  const res = client.batchAnnotateImages(req)
-  return {
-    res
-  };
+  try {
+    const res = await client.batchAnnotateImages(req)
+    return {
+      res,
+    };
+  } catch (error) {
+    logger.log('cloud vision api failed', error);
+    return {
+      error: error
+    };
+  }
 });

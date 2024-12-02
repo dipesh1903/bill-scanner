@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import ProductCard from "./product-card";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ProductListType } from "../../type";
+import { ProductListType, ProductType } from "../../type";
 import { PrimaryButton } from "../../components/ui/button";
 import { useContextDispatch, useContextStore } from "../../store/products/context";
+import BillSheet from "../../components/bill-sheet";
 
 export default function ProductSettings({value}: {value?: ProductListType}) {
 
+    const formRef = useRef<HTMLFormElement>(null);
     const { state, pathname } = useLocation();
     const navigate = useNavigate();
     const dispatch = useContextDispatch();
@@ -23,12 +24,30 @@ export default function ProductSettings({value}: {value?: ProductListType}) {
         }
     }, [pathname])
 
+    function updatedInput(productIds: string[]) {
+        const productList: ProductListType = {};
+        const textareas = formRef.current?.getElementsByTagName('textarea')
+        if (textareas) {
+            for (let textarea of textareas) {
+                const colName = textarea.getAttribute('data-col')
+                const colKey = textarea.getAttribute('data-key');
+                console.log('col keys and col names are', colKey, colName);
+                if (!colKey || !colName) continue;
+                if (productIds.includes(colKey || '')) {
+                    if (!productList[colKey]) productList[colKey] = {} as ProductType
+                    productList[colKey][colName as keyof ProductType] = textarea.value
+                }
+            }
+        }
+        return productList;
+    }
+
     function onSave() {
         const savedProductId = Object.keys(allProducts || {})
         const productIds = Object.keys(products || {})
         const productIdsToSave = productIds.filter(id => !savedProductId.includes(id))
-        const productList: ProductListType = {};
-        (productIdsToSave || []).forEach(id => productList[id] = products[id])
+        const productList: ProductListType = updatedInput(productIdsToSave);
+        // (productIdsToSave || []).forEach(id => productList[id] = products[id])
         if (productIdsToSave.length) {
             dispatch({products: {...allProducts.products, ...productList}})
             navigate(-1)
@@ -41,7 +60,7 @@ export default function ProductSettings({value}: {value?: ProductListType}) {
                 <h1 className="font-semibold">Products</h1>
                 {!viewOnly &&  <PrimaryButton className="w-fit" onClick={() => onSave()}>save</PrimaryButton>}
             </header>
-            {
+            {/* {
                 Object.keys(products || {}).map((key, index) => (
                     <div
                         key={key} 
@@ -51,7 +70,8 @@ export default function ProductSettings({value}: {value?: ProductListType}) {
                         product={products[key]}/>
                     </div>
                 ))
-            }
+            } */}
+            <BillSheet viewOnly={viewOnly} ref={formRef} rowData={products} columns={['description', 'hsn', 'quantity', 'rate']} />
         </div>
     )
 }

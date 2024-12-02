@@ -19,7 +19,6 @@ export default function HomePage() {
 
     const functions = getFunctions();
     const addMessage = httpsCallable(functions, 'helloWorld');
-
     function onSelectInput() {
         if (inputRef.current) {
             inputRef.current.click()

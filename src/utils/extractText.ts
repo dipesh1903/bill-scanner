@@ -1,8 +1,9 @@
 import { descTextField, amountTextField, rateTextField, serialNoTextField, quantityTextField, outputTextField } from "../constant";
-import { ProductListType, ProductType, textAnnotationsType, textAnnotationtypeFull } from "../type";
+import { ProductListType, textAnnotationsType, textAnnotationtypeFull } from "../type";
 import uuid from 'uuid-random';
 
 export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): ProductListType {
+  console.log('text annotations is ', textAnnotations);
   const amtRegex = /^\d{1,3}(,\d{3})*(\.\d+)?$/;
   const annotations: textAnnotationtypeFull[] = textAnnotations.map(anno => {
     anno.boundingPoly.vertices.forEach(item => {
@@ -94,9 +95,10 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
 
   const items = tableBounds.filter(item => item.boundingPoly.vertices[0].x < hsnBlock?.boundingPoly.vertices[0].x);
   console.log('table bound is ', tableBounds , '\n', minimums, '\n', boundingRects, textAnnotation.length);
+
   const hsnNos = tableBounds.filter(item =>  !isNaN(+item.description) && item.description.length === 8 && item.boundingPoly.vertices[0].x > hsnBlock.boundingPoly.vertices[0].x - 20 &&
-  item.boundingPoly.vertices[0].x < hsnBlock.boundingPoly.vertices[1].x + 20
-)
+  item.boundingPoly.vertices[0].x < hsnBlock.boundingPoly.vertices[1].x + 20)
+
   const slNos = items.filter(item => {
     return ((((item.boundingPoly.vertices[0].x || 0) < (serialBlock?.boundingPoly.vertices[2].x || 0)
     || (serialBlockNo && (item.boundingPoly.vertices[0].x || 0) < serialBlockNo?.boundingPoly.vertices[2].x)))
@@ -125,7 +127,7 @@ export function onExtractBillInfo(textAnnotations: textAnnotationsType[]): Produ
   })
   console.log('descriptions are ', descriptions);
   const quantities: textAnnotationtypeFull[][] = [];
-  hsnNos.forEach((hsn, index) => {
+  hsnNos.forEach((_, index) => {
     let topCheck = slNos[index].boundingPoly.vertices[0].y;
     if (quantities.length) {
       topCheck = quantities[quantities.length - 1][quantities[quantities.length - 1].length - 1].boundingPoly.vertices[2].y;
