@@ -52,8 +52,15 @@ export default function HomePage() {
         extractTextFromImg(img);
     }
 
-    function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
-
+    function handleFileChange(e: ChangeEvent<HTMLInputElement>, isSaveBills?: boolean) {
+        if (isSaveBills) {
+            navigate('/gallery', {
+                state: {
+                    files: e.target.files
+                }
+            })
+            return;
+        }
         if(e.target.files && e.target.files.length) {
             setFile(e.target.files[0]);
             const ctx = canvasRef?.current?.getContext('2d');
@@ -94,14 +101,23 @@ export default function HomePage() {
                     </header>
                     <main className="flex flex-col items-center">
                         <div className="w-fit">
-                            <PrimaryButton className="px-6" onClick={onSelectInput}>Select Bill Image</PrimaryButton>
+                            <PrimaryButton className="px-6" onClick={onSelectInput}>Scan Bill Image</PrimaryButton>
                             <input ref={inputRef}
                             onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileChange(e)} type="file" className="hidden" />
                         </div>
                         <div className="flex flex-1 w-full pt-1 pb-1 items-center">
-                            <span className="flex flex-1 h-[1px] bg-slate-400"></span><span className="p-2 text-[20px]">or</span><span className="flex flex-1 h-[1px] bg-slate-400"></span></div>
+                            <span className="flex flex-1 h-[1px] bg-slate-400"></span><span className="p-2 text-[20px]">or</span><span className="flex flex-1 h-[1px] bg-slate-400"></span>
+                        </div>
                         <div className="w-fit">
-                            <PrimaryButton className="px-6" onClick={() => setIsCameraOpen(true)}>Click Bill Photo</PrimaryButton>
+                            <PrimaryButton className="px-6" onClick={() => setIsCameraOpen(true)}>Scan Bill Photo</PrimaryButton>
+                        </div>
+                        <div className="flex flex-1 w-full pt-1 pb-1 items-center">
+                            <span className="flex flex-1 h-[1px] bg-slate-400"></span><span className="p-2 text-[20px]">or</span><span className="flex flex-1 h-[1px] bg-slate-400"></span>
+                        </div>
+                        <div className="w-fit my-2">
+                            <PrimaryButton className="px-6" onClick={onSelectInput}>Save Bills</PrimaryButton>
+                            <input accept="image/*" multiple ref={inputRef}
+                            onChange={(e: ChangeEvent<HTMLInputElement>) => handleFileChange(e, true)} type="file" className="hidden" />
                         </div>
                         <canvas className="mt-4" ref={canvasRef} height={400} width={400}></canvas>
                     </main>

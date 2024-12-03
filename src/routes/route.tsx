@@ -3,6 +3,8 @@ import HomePage from "../pages/home";
 import ProductSettings from "../pages/product-settings";
 import { AuthGaurd } from "./authGaurd";
 import LoginPage from "../pages/login";
+import Gallery from "../pages/gallery/admin";
+import GalleryView from "../pages/gallery/view";
 
 export const router = createBrowserRouter([
     {
@@ -13,6 +15,10 @@ export const router = createBrowserRouter([
         path: '/login',
         element: <LoginPage/>,
 
+    },
+    {
+        path: '/gallery/view',
+        element: <GalleryView/>
     },
     {
         element: <AuthGaurd></AuthGaurd>,
@@ -29,6 +35,10 @@ export const router = createBrowserRouter([
                 path: '/product/all',
                 element: <ProductSettings />
             },
+            {
+                path: '/gallery',
+                element: <Gallery/>
+            }
         ]
     },
     {
