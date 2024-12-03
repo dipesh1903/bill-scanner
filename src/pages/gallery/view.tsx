@@ -90,8 +90,8 @@ export default function GalleryView() {
                             <div>
                                 <div className="flex items-center">
                                     <ChevronLeft width={40} onClick={() => setImg(currImgIndex - 1)}/>
-                                        <div className="flex-1">
-                                        <img style={{rotate: `${rotate}deg`}} className={cn("stroke-slate-800 object-fit flex-1", 
+                                        <div className="flex-1 h-[70vh] overflow-scroll">
+                                        <img style={{rotate: `${rotate}deg`}} className={cn("stroke-slate-800 h-100% w-100% object-fit flex-1", 
                                             `rotate-[${rotate}deg]`)} src={imgUrls[currImgIndex]} />
                                         </div>
                                     <ChevronRight width={40} onClick={() => setImg(currImgIndex + 1)}/>
